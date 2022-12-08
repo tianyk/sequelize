@@ -1,20 +1,21 @@
 'use strict';
 
 const Support = require('../support');
-const DataTypes = require('../../../lib/data-types');
+const { DataTypes, OptimisticLockError } = require('@sequelize/core');
 const chai = require('chai');
+
 const expect = chai.expect;
 
 describe(Support.getTestDialectTeaser('Model'), () => {
   describe('optimistic locking', () => {
     let Account;
-    beforeEach(async function() {
+    beforeEach(async function () {
       Account = this.sequelize.define('Account', {
         number: {
-          type: DataTypes.INTEGER
-        }
+          type: DataTypes.INTEGER,
+        },
       }, {
-        version: true
+        version: true,
       });
       await Account.sync({ force: true });
     });
@@ -46,14 +47,15 @@ describe(Support.getTestDialectTeaser('Model'), () => {
         await accountA.save();
         const accountB = await accountB0;
         accountB.number += 1;
+
         return await accountB.save();
-      })()).to.eventually.be.rejectedWith(Support.Sequelize.OptimisticLockError);
+      })()).to.eventually.be.rejectedWith(OptimisticLockError);
     });
 
     it('increment() also increments the version', async () => {
       const account1 = await Account.create({ number: 1 });
       expect(account1.version).to.eq(0);
-      const account0 = await account1.increment('number', { by: 1 } );
+      const account0 = await account1.increment('number', { by: 1 });
       const account = await account0.reload();
       expect(account.version).to.eq(1);
     });
@@ -61,7 +63,7 @@ describe(Support.getTestDialectTeaser('Model'), () => {
     it('decrement() also increments the version', async () => {
       const account1 = await Account.create({ number: 1 });
       expect(account1.version).to.eq(0);
-      const account0 = await account1.decrement('number', { by: 1 } );
+      const account0 = await account1.decrement('number', { by: 1 });
       const account = await account0.reload();
       expect(account.version).to.eq(1);
     });

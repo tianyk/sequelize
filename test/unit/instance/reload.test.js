@@ -1,35 +1,44 @@
 'use strict';
 
-const chai = require('chai'),
-  expect = chai.expect,
-  Support   = require('../support'),
-  current   = Support.sequelize,
-  Sequelize = Support.Sequelize,
-  sinon     = require('sinon');
+const chai = require('chai');
+
+const expect = chai.expect;
+const Support   = require('../../support');
+
+const current   = Support.sequelize;
+const { DataTypes } = require('@sequelize/core');
+const sinon     = require('sinon');
 
 describe(Support.getTestDialectTeaser('Instance'), () => {
   describe('reload', () => {
+    it('is not allowed if the instance does not have a primary key defined', async () => {
+      const User = current.define('User', {});
+      const instance = User.build({});
+
+      await expect(instance.reload()).to.be.rejectedWith('but this model instance is missing the value of its primary key');
+    });
+
     describe('options tests', () => {
-      let stub, instance;
+      let stub; let instance;
       const Model = current.define('User', {
         id: {
-          type: Sequelize.BIGINT,
+          type: DataTypes.BIGINT,
           primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
         },
         deletedAt: {
-          type: Sequelize.DATE
-        }
+          type: DataTypes.DATE,
+        },
       }, {
-        paranoid: true
+        paranoid: true,
       });
 
       before(() => {
-        stub = sinon.stub(current, 'query').resolves(
+        stub = sinon.stub(current, 'queryRaw').resolves(
           {
             _previousDataValues: { id: 1 },
-            dataValues: { id: 2 }
-          }
+            dataValues: { id: 2 },
+          },
         );
       });
 

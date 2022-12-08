@@ -1,18 +1,18 @@
 'use strict';
 
-const chai = require('chai'),
-  expect = chai.expect,
-  Support = require('../support'),
-  DataTypes = require('../../../lib/data-types');
+const chai = require('chai');
+
+const expect = chai.expect;
+const Support = require('../support');
+const { DataTypes } = require('@sequelize/core');
 
 describe(Support.getTestDialectTeaser('Model'), () => {
-  beforeEach(async function() {
+  beforeEach(async function () {
     this.Payment = this.sequelize.define('Payment', {
-      amount: DataTypes.DECIMAL,
+      amount: DataTypes.FLOAT,
       mood: {
-        type: DataTypes.ENUM,
-        values: ['happy', 'sad', 'neutral']
-      }
+        type: DataTypes.ENUM(['happy', 'sad', 'neutral']),
+      },
     });
 
     await this.sequelize.sync({ force: true });
@@ -21,21 +21,21 @@ describe(Support.getTestDialectTeaser('Model'), () => {
       { amount: 5, mood: 'neutral' },
       { amount: -5, mood: 'neutral' },
       { amount: 10, mood: 'happy' },
-      { amount: 90, mood: 'happy' }
+      { amount: 90, mood: 'happy' },
     ]);
   });
 
   describe('sum', () => {
 
-    it('should sum without rows', async function() {
-      await expect(this.Payment.sum('amount', { where: { mood: 'sad' } })).to.eventually.be.equal(0);
+    it('should sum without rows', async function () {
+      await expect(this.Payment.sum('amount', { where: { mood: 'sad' } })).to.eventually.be.null;
     });
 
-    it('should sum when is 0', async function() {
+    it('should sum when is 0', async function () {
       await expect(this.Payment.sum('amount', { where: { mood: 'neutral' } })).to.eventually.be.equal(0);
     });
 
-    it('should sum', async function() {
+    it('should sum', async function () {
       await expect(this.Payment.sum('amount', { where: { mood: 'happy' } })).to.eventually.be.equal(100);
     });
   });

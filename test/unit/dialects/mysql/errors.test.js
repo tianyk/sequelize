@@ -1,9 +1,12 @@
 'use strict';
 
 const chai = require('chai');
+
 const expect = chai.expect;
-const Support = require('../../support');
-const Sequelize = Support.Sequelize;
+const Support = require('../../../support');
+
+const { Sequelize } = require('@sequelize/core');
+
 const dialect = Support.getTestDialect();
 const queryProto = Support.sequelize.dialect.Query.prototype;
 
@@ -42,7 +45,7 @@ if (dialect === 'mysql') {
     });
 
     it('newlines contained in err message are parsed correctly', () => {
-      const fakeErr = new Error("Duplicate entry '13888888888\r' for key 'num'");
+      const fakeErr = new Error('Duplicate entry \'13888888888\r\' for key \'num\'');
 
       fakeErr.code = 1062;
 
@@ -52,6 +55,6 @@ if (dialect === 'mysql') {
       expect(parsedErr.parent).to.equal(fakeErr);
       expect(parsedErr.fields.num).to.equal('13888888888\r');
     });
-    
+
   });
 }

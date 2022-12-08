@@ -1,32 +1,31 @@
 'use strict';
 
-const chai = require('chai'),
-  expect = chai.expect,
-  Support = require('../support'),
-  DataTypes = require('../../../lib/data-types'),
-  sinon = require('sinon');
+const chai = require('chai');
+
+const expect = chai.expect;
+const Support = require('../support');
+const { DataTypes } = require('@sequelize/core');
+const sinon = require('sinon');
 
 describe(Support.getTestDialectTeaser('Hooks'), () => {
-  beforeEach(async function() {
+  beforeEach(async function () {
     this.User = this.sequelize.define('User', {
       username: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       mood: {
-        type: DataTypes.ENUM,
-        values: ['happy', 'sad', 'neutral']
-      }
+        type: DataTypes.ENUM(['happy', 'sad', 'neutral']),
+      },
     });
 
     this.ParanoidUser = this.sequelize.define('ParanoidUser', {
       username: DataTypes.STRING,
       mood: {
-        type: DataTypes.ENUM,
-        values: ['happy', 'sad', 'neutral']
-      }
+        type: DataTypes.ENUM(['happy', 'sad', 'neutral']),
+      },
     }, {
-      paranoid: true
+      paranoid: true,
     });
 
     await this.sequelize.sync({ force: true });
@@ -34,9 +33,9 @@ describe(Support.getTestDialectTeaser('Hooks'), () => {
 
   describe('#restore', () => {
     describe('on success', () => {
-      it('should run hooks', async function() {
-        const beforeHook = sinon.spy(),
-          afterHook = sinon.spy();
+      it('should run hooks', async function () {
+        const beforeHook = sinon.spy();
+        const afterHook = sinon.spy();
 
         this.ParanoidUser.beforeRestore(beforeHook);
         this.ParanoidUser.afterRestore(afterHook);
@@ -50,9 +49,9 @@ describe(Support.getTestDialectTeaser('Hooks'), () => {
     });
 
     describe('on error', () => {
-      it('should return an error from before', async function() {
-        const beforeHook = sinon.spy(),
-          afterHook = sinon.spy();
+      it('should return an error from before', async function () {
+        const beforeHook = sinon.spy();
+        const afterHook = sinon.spy();
 
         this.ParanoidUser.beforeRestore(() => {
           beforeHook();
@@ -67,9 +66,9 @@ describe(Support.getTestDialectTeaser('Hooks'), () => {
         expect(afterHook).not.to.have.been.called;
       });
 
-      it('should return an error from after', async function() {
-        const beforeHook = sinon.spy(),
-          afterHook = sinon.spy();
+      it('should return an error from after', async function () {
+        const beforeHook = sinon.spy();
+        const afterHook = sinon.spy();
 
         this.ParanoidUser.beforeRestore(beforeHook);
         this.ParanoidUser.afterRestore(() => {

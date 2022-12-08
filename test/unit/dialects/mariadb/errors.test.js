@@ -1,9 +1,12 @@
 'use strict';
 
 const chai = require('chai');
+
 const expect = chai.expect;
-const Support = require('../../support');
-const Sequelize = Support.Sequelize;
+const Support = require('../../../support');
+
+const { Sequelize } = require('@sequelize/core');
+
 const dialect = Support.getTestDialect();
 const queryProto = Support.sequelize.dialect.Query.prototype;
 
